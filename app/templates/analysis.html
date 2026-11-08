@@ -1,0 +1,165 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Анализ — Анализ ЭКГ{% endblock %}
+
+{% block content %}
+<div class="analysis-page" data-file-id="{{ file_id }}">
+    <a href="/" class="btn btn--ghost back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        К загрузке файлов
+    </a>
+
+    <div class="analysis-progress card" id="analysisProgress">
+        <div class="analysis-progress__head">
+            <div class="spinner spinner--lg" aria-hidden="true"></div>
+            <div>
+                <h2 style="margin: 0;">Выполняется анализ…</h2>
+                <p class="muted" style="margin: 0;">Пожалуйста, подождите. Это может занять несколько секунд.</p>
+            </div>
+        </div>
+        <div class="progress-steps">
+            <div class="step" data-step="model-loading">
+                <span class="step__bullet"></span>
+                <span class="step__text">Загрузка модели ИИ</span>
+            </div>
+            <div class="step" data-step="validation">
+                <span class="step__bullet"></span>
+                <span class="step__text">Валидация сигнала</span>
+            </div>
+            <div class="step" data-step="preprocessing">
+                <span class="step__bullet"></span>
+                <span class="step__text">Предобработка</span>
+            </div>
+            <div class="step" data-step="classification">
+                <span class="step__bullet"></span>
+                <span class="step__text">ИИ-классификация</span>
+            </div>
+        </div>
+        <div class="progress progress--indeterminate">
+            <div class="progress__fill"></div>
+        </div>
+    </div>
+
+    <div id="analysisResults" style="display: none;">
+        <div class="results-header">
+            <div>
+                <h1>Результаты анализа</h1>
+                <div class="file-info muted" id="fileInfo"></div>
+            </div>
+        </div>
+
+        <div class="verdict-card" id="verdictCard">
+            <div class="verdict-card__head">
+                <div class="verdict-card__icon" id="verdictIcon"></div>
+                <div class="verdict-card__heading">
+                    <div class="verdict-card__label">Итоговый вердикт</div>
+                    <div class="verdict-card__title" id="verdictText"></div>
+                </div>
+            </div>
+            <div class="verdict-card__metrics" id="verdictProbability"></div>
+            <div class="verdict-card__details">
+                <div class="verdict-card__detail">
+                    <span class="verdict-card__detail-label">Ритм</span>
+                    <span class="verdict-card__detail-value" id="rhythmValue"></span>
+                </div>
+                <div class="verdict-card__detail">
+                    <span class="verdict-card__detail-label">ЧСС</span>
+                    <span class="verdict-card__detail-value" id="hrValue"></span>
+                </div>
+            </div>
+            <div class="prob-bars" id="classProbabilities"></div>
+            <div class="threshold-rule-note" id="thresholdRuleNote"></div>
+        </div>
+
+        <div class="card ecg-section">
+            <div class="card__header">
+                <h3>ЭКГ-кривые</h3>
+                <div class="ecg-controls">
+                    <div class="control-group">
+                        <label for="viewModeSelect">Режим</label>
+                        <select id="viewModeSelect" class="toolbar-select">
+                            <option value="all">Все 12 отведений</option>
+                            <option value="single">По одному</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="leadSelectorGroup" style="display: none;">
+                        <label for="leadSelect">Отведение</label>
+                        <select id="leadSelect" class="toolbar-select">
+                            <option value="0">I</option>
+                            <option value="1">II</option>
+                            <option value="2">III</option>
+                            <option value="3">aVR</option>
+                            <option value="4">aVL</option>
+                            <option value="5">aVF</option>
+                            <option value="6">V1</option>
+                            <option value="7">V2</option>
+                            <option value="8">V3</option>
+                            <option value="9">V4</option>
+                            <option value="10">V5</option>
+                            <option value="11">V6</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="dataModeSelect">Длина</label>
+                        <select id="dataModeSelect" class="toolbar-select">
+                            <option value="fragment">Фрагмент 10 с</option>
+                            <option value="full">Весь файл</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn--ghost btn--sm" id="fullscreenBtn" type="button" title="На весь экран">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="ecg-viewer" id="ecgViewer"></div>
+        </div>
+
+        <div class="card export-section">
+            <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Экспорт отчёта
+            </h3>
+            <p class="muted">Сгенерируйте PDF с графиками ЭКГ, вердиктом и объяснениями модели.</p>
+            <div class="export-actions">
+                <button class="btn btn--primary" id="exportPdfBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Экспорт в PDF
+                </button>
+                <button class="btn btn--warning" id="reanalyzeBtn" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    <span id="reanalyzeBtnText">Повторный анализ</span>
+                </button>
+            </div>
+            <div id="thresholdMismatchNotice" class="threshold-mismatch-notice" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="card error-card" id="analysisError" style="display: none;">
+        <div class="error-icon" id="analysisErrorIcon"></div>
+        <h2>Ошибка анализа</h2>
+        <p id="analysisErrorText"></p>
+        <a href="/" class="btn btn--primary">Вернуться к загрузке</a>
+    </div>
+</div>
+
+<!-- Fullscreen ECG modal -->
+<div class="modal" id="ecgFullscreenModal" hidden>
+    <div class="modal__backdrop" id="ecgFullscreenBackdrop"></div>
+    <div class="modal__dialog modal__dialog--fullscreen" role="dialog" aria-labelledby="ecgFullscreenTitle" aria-modal="true">
+        <div class="modal__header">
+            <h3 id="ecgFullscreenTitle" class="modal__title">ЭКГ — На весь экран</h3>
+            <button class="btn btn--ghost btn--icon" id="ecgFullscreenClose" type="button" aria-label="Закрыть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="ecg-viewer" id="ecgFullscreenViewer" style="min-height: 70vh;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ecg_viewer.js', v='20260608') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js', v='20260608') }}"></script>
+{% endblock %}

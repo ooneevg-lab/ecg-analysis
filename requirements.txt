@@ -1,0 +1,32 @@
+# Flask and web dependencies
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# PyTorch and ML
+torch>=2.0.0
+
+# Scientific computing
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+
+# FastAI layers (for model architecture)
+fastai>=2.7.0
+
+# PDF generation (ReportLab works on Windows without GTK)
+reportlab>=4.0.0
+
+# Plotting
+plotly>=5.15.0
+matplotlib>=3.7.0
+
+# XML parsing
+lxml>=4.9.0
+
+# Desktop application
+pywebview>=4.0.0
+pystray>=0.19.0
+Pillow>=10.0.0
+
+# Folder watcher for the cardiograph export pipeline
+watchdog>=4.0.0

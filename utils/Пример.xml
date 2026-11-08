@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Poly-Spectrum.NET XML curves export-->
+<File>
+  <FormatVersion>1</FormatVersion>
+  <CurveList Count="1">
+    <CurveSet Count="12" Number="1">
+      <CurveSet.Points Count="21">
+        <Point Type="testBackground" Time="0" />
+        <Point Type="pointECGQRS" Time="0.754592616168048" />
+        <Point Type="pointECGQRS" Time="1.68294155251142" />
+        <Point Type="pointECGQRS" Time="2.74353756528726" />
+        <Point Type="pointECGQRS" Time="3.69581067301156" />
+        <Point Type="pointECGQRS" Time="4.61375246872943" />
+        <Point Type="pointECGQRS" Time="5.64761857511411" />
+        <Point Type="pointECGQRS" Time="6.54789989888777" />
+        <Point Type="pointECGQRS" Time="7.67772376382224" />
+        <Point Type="pointECGQRS" Time="8.65024705882353" />
+        <Point Type="pointECGQRS" Time="9.62833151700087" />
+        <Point Type="pointECGQRS" Time="10.6455646452072" />
+        <Point Type="pointECGQRS" Time="11.6557886376378" />
+        <Point Type="pointECGQRS" Time="12.7012856595826" />
+        <Point Type="pointECGQRS" Time="13.6136788617886" />
+        <Point Type="pointECGQRS" Time="14.7044374255066" />
+        <Point Type="pointECGQRS" Time="15.6242584218856" />
+        <Point Type="pointECGQRS" Time="16.7171550483241" />
+        <Point Type="pointECGQRS" Time="17.6028586171311" />
+        <Point Type="pointECGQRS" Time="18.5713692651238" />
+        <Point Type="pointECGQRS" Time="19.5229331657239" />
+      </CurveSet.Points>
+      <Curve Number="1" Type="ECG" SubType="ecgI">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>1</ChannelNumber>
+        <Data Units="Volt">-0.0002317006
+-0.0002321691
+-0.0002327765
+-0.0002335204
+-0.0002344131
+-0.0002354957
+-0.0002367854
+-0.0002382782
+-0.0002399845
+-0.000241895
+-0.000243999
+-0.0002462856
+-0.0002486948
+-0.0002511737
+-0.0004030937
+</Data>
+      </Curve>
+      <Curve Number="2" Type="ECG" SubType="ecgII">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>2</ChannelNumber>
+        <Data Units="Volt">0.0004946762
+0.0004939223
+0.0004930678
+0.0004921207
+0.0004910968
+0.0004900025
+0.0004888441
+0.0004876115
+0.0004862888
+0.0004848797
+0.000483372
+0.0002697228
+</Data>
+      </Curve>
+      <Curve Number="3" Type="ECG" SubType="ecgIII">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>3</ChannelNumber>
+        <Data Units="Volt">0.000726377
+0.0007260914
+0.0007258444
+0.0007256411
+0.0007255099
+0.0007254982
+0.0007256295
+0.0007258897
+0.0007262734
+0.0007267747
+0.0007273711
+0.0007280341
+0.0006730189
+0.0006729031
+0.0006728165
+</Data>
+      </Curve>
+      <Curve Number="4" Type="ECG" SubType="ecgAVR">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>4</ChannelNumber>
+        <Data Units="Volt">-0.0001314878
+-0.0001308767
+-0.0001301457
+-0.0001293002
+-0.0001283419
+-0.0001272534
+-0.0001260294
+-0.0001246667
+-0.0001231522
+-0.0001214924
+-0.0001196865
+-0.0001177314
+-0.0001156624
+-0.0001135151
+-0.0001112926
+-0.0001090022
+-0.0001066635
+6.689725E-05
+6.678636E-05
+6.668542E-05
+</Data>
+      </Curve>
+      <Curve Number="5" Type="ECG" SubType="ecgAVL">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>5</ChannelNumber>
+        <Data Units="Volt">-0.0004790388
+-0.0004791302
+-0.0004793105
+-0.0004795808
+-0.0004799615
+-0.000480497
+-0.0004812075
+-0.0004820839
+-0.000483129
+-0.0004843349
+-0.0004856851
+-0.0004871599
+-0.0005382128
+-0.0005380705
+-0.0005379551
+</Data>
+      </Curve>
+      <Curve Number="6" Type="ECG" SubType="ecgAVF">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>6</ChannelNumber>
+        <Data Units="Volt">0.0006105267
+0.0006100069
+0.0006094562
+0.0006088809
+0.0006083034
+0.0006077504
+0.0006072368
+0.0006067506
+0.0006062811
+0.0006058272
+0.0004712842
+0.0004712697
+</Data>
+      </Curve>
+      <Curve Number="7" Type="ECG" SubType="ecgV1">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>7</ChannelNumber>
+        <Data Units="Volt">6.010599E-05
+6.157541E-05
+6.314387E-05
+6.483333E-05
+6.665586E-05
+6.86176E-05
+7.072494E-05
+7.297366E-05
+7.534239E-05
+0.0002606405
+0.0002602293
+0.0002598447
+</Data>
+      </Curve>
+      <Curve Number="8" Type="ECG" SubType="ecgV2">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>8</ChannelNumber>
+        <Data Units="Volt">-0.0001647346
+-0.0001638183
+-0.0001628282
+-0.0001617322
+-0.0001605255
+-0.0001592161
+-0.0001578012
+-0.0001562957
+-0.0001547214
+0.0001856196
+0.0001851638
+</Data>
+      </Curve>
+      <Curve Number="9" Type="ECG" SubType="ecgV3">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>9</ChannelNumber>
+        <Data Units="Volt">0.0002735297
+0.0002744971
+0.0002755334
+0.0002766548
+0.0002778769
+0.0002792089
+0.0002806365
+0.0002821297
+0.0002836705
+0.0002852563
+0.0002868897
+0.0002885671
+0.0007556379
+0.0007552087
+</Data>
+      </Curve>
+      <Curve Number="10" Type="ECG" SubType="ecgV4">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>10</ChannelNumber>
+        <Data Units="Volt">-0.0007770788
+-0.0007760261
+-0.0007749178
+-0.0007737447
+-0.0007724889
+-0.0007711389
+-0.0007696989
+-0.0007681902
+-0.0007666394
+-0.0007650567
+-0.0001913569
+-0.0001919098
+-0.0001924166
+</Data>
+      </Curve>
+      <Curve Number="11" Type="ECG" SubType="ecgV5">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>11</ChannelNumber>
+        <Data Units="Volt">-0.0003616121
+-0.0003617368
+-0.0003618568
+-0.00036195
+-0.0003620112
+-0.000362055
+-0.0003620996
+-0.0003621605
+-0.0003622427
+-0.0003623369
+-0.0003624376
+-0.0005070792
+-0.0005073849
+-0.0005076632
+</Data>
+      </Curve>
+      <Curve Number="12" Type="ECG" SubType="ecgV6">
+        <Frequency Units="Hz">2000</Frequency>
+        <Samples>40000</Samples>
+        <ChannelNumber>12</ChannelNumber>
+        <Data Units="Volt">0.002829812
+0.002829002
+0.002828126
+0.002827184
+0.002826164
+0.002825054
+0.001465819
+0.001463785
+0.001461819
+0.001459913
+0.001458055
+0.001456242
+0.001454473
+0.00145274
+0.001451035
+0.001449351
+0.001447681
+0.001446003
+0.001444284
+0.001442492
+0.001440623
+0.001373634
+0.001373752
+</Data>
+      </Curve>
+    </CurveSet>
+  </CurveList>
+</File>

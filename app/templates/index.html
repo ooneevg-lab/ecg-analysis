@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Загрузка ЭКГ — Анализ ЭКГ{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Загрузка ЭКГ</h1>
+    <p class="subtitle">Загрузите XML-файлы в формате Poly-Spectrum.NET для пакетного анализа 12-канальных записей</p>
+</div>
+
+<!-- Watcher status card (visible only when watcher is initialized) -->
+<div class="watcher-card" id="watcherCard" hidden>
+    <div class="watcher-card__icon" id="watcherCardIcon"></div>
+    <div class="watcher-card__body">
+        <div class="watcher-card__title" id="watcherCardTitle">Слежение за папкой</div>
+        <div class="watcher-card__sub" id="watcherCardSub"></div>
+    </div>
+    <div class="watcher-card__actions">
+        <button class="btn btn--ghost btn--sm" id="watcherPauseBtn" type="button" hidden>
+            <span id="watcherPauseBtnIcon"></span>
+            <span id="watcherPauseBtnLabel">Пауза</span>
+        </button>
+        <button class="btn btn--ghost btn--sm" id="watcherRescanBtn" type="button">
+            <span id="watcherRescanBtnIcon"></span>
+            <span>Ресскан</span>
+        </button>
+        <button class="btn btn--ghost btn--sm" id="watcherAuditBtn" type="button" title="Журнал импорта">
+            <span id="watcherAuditBtnIcon"></span>
+        </button>
+        <button class="btn btn--secondary btn--sm" id="watcherConfigBtn" type="button">
+            <span id="watcherConfigBtnIcon"></span>
+            <span>Настроить</span>
+        </button>
+    </div>
+</div>
+
+<!-- Temp folder card -->
+<div class="folder-card" id="folderCard">
+    <div class="folder-card__icon" id="folderCardIcon"></div>
+    <div class="folder-card__body">
+        <div class="folder-card__title">Папка временных файлов</div>
+        <div class="folder-card__path" id="folderCardPath" title=""></div>
+        <div class="folder-card__stats" id="folderCardStats"></div>
+    </div>
+    <div class="folder-card__actions">
+        <button class="btn btn--ghost btn--sm" id="folderConfigBtn" type="button" title="Настроить папку">
+            <span id="folderConfigBtnIcon"></span>
+            <span>Настроить</span>
+        </button>
+        <button class="btn btn--ghost btn--sm btn--danger" id="folderClearBtn" type="button" title="Очистить папку">
+            <span id="folderClearBtnIcon"></span>
+            <span>Очистить</span>
+        </button>
+    </div>
+</div>
+
+<!-- Watcher config modal -->
+<div class="modal" id="watcherConfigModal" hidden>
+    <div class="modal__backdrop" id="watcherConfigBackdrop"></div>
+    <div class="modal__dialog" role="dialog" aria-labelledby="watcherConfigTitle" aria-modal="true">
+        <h3 id="watcherConfigTitle" class="modal__title">Слежение за папкой кардиографа</h3>
+        <p class="modal__description">Программа будет автоматически импортировать новые XML-файлы из выбранной папки и (опционально) сразу их анализировать.</p>
+        <div class="form-row">
+            <label for="watcherFolderInput" class="form-label">Папка экспорта</label>
+            <div class="form-row__inline">
+                <input type="text" id="watcherFolderInput" class="form-input" placeholder="C:\cardiograph\export" autocomplete="off">
+                <button class="btn btn--ghost btn--sm" id="watcherFolderBrowseBtn" type="button">Обзор…</button>
+            </div>
+            <div class="form-hint" id="watcherFolderHint"></div>
+        </div>
+        <div class="form-row form-row--checkbox">
+            <label class="form-checkbox">
+                <input type="checkbox" id="watcherAutoAnalyze">
+                <span>Автоматически анализировать новые файлы</span>
+            </label>
+        </div>
+        <div class="form-row form-row--checkbox">
+            <label class="form-checkbox">
+                <input type="checkbox" id="watcherDeleteAfter">
+                <span>Удалять файл из папки после импорта</span>
+            </label>
+            <div class="form-hint">По умолчанию выключено — кардиограф ведёт собственный лог.</div>
+        </div>
+        <div class="modal__actions">
+            <button class="btn btn--ghost btn--sm" id="watcherConfigCancel" type="button">Отмена</button>
+            <button class="btn btn--primary btn--sm" id="watcherConfigSave" type="button">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Watcher audit log modal -->
+<div class="modal" id="watcherAuditModal" hidden>
+    <div class="modal__backdrop" id="watcherAuditBackdrop"></div>
+    <div class="modal__dialog modal__dialog--wide" role="dialog" aria-labelledby="watcherAuditTitle" aria-modal="true">
+        <h3 id="watcherAuditTitle" class="modal__title">Журнал импорта слежения</h3>
+        <p class="modal__description">История автоматического импорта файлов из отслеживаемой папки.</p>
+        <div id="watcherAuditList" class="watcher-audit-list"></div>
+        <div id="watcherAuditEmpty" class="watcher-audit-list__empty" style="display: none;">Журнал пуст.</div>
+        <div class="modal__actions">
+            <button class="btn btn--ghost btn--sm" id="watcherAuditModalClose" type="button">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Folder config modal -->
+<div class="modal" id="folderConfigModal" hidden>
+    <div class="modal__backdrop" id="folderConfigBackdrop"></div>
+    <div class="modal__dialog" role="dialog" aria-labelledby="folderConfigTitle" aria-modal="true">
+        <h3 id="folderConfigTitle" class="modal__title">Папка для временных файлов</h3>
+        <p class="modal__description">Здесь хранятся загруженные XML-файлы и кэш анализов. Можно выбрать любую папку на диске.</p>
+        <div class="form-row">
+            <label for="folderInput" class="form-label">Путь к папке</label>
+            <div class="form-row__inline">
+                <input type="text" id="folderInput" class="form-input" placeholder="C:\temp\ecg_uploads" autocomplete="off" readonly>
+                <button class="btn btn--ghost btn--sm" id="folderBrowseBtn" type="button">Обзор…</button>
+            </div>
+            <div class="form-hint" id="folderHint"></div>
+        </div>
+        <div class="form-row">
+            <label for="folderCurrentPath" class="form-label">Текущая папка</label>
+            <input type="text" id="folderCurrentPath" class="form-input" readonly>
+        </div>
+        <div class="modal__actions">
+            <button class="btn btn--ghost btn--sm" id="folderConfigCancel" type="button">Отмена</button>
+            <button class="btn btn--primary btn--sm" id="folderConfigSave" type="button">Сохранить</button>
+            <button class="btn btn--ghost btn--sm" id="folderConfigReset" type="button">Сбросить к умолчанию</button>
+        </div>
+    </div>
+</div>
+
+<!-- Archive modal -->
+<div class="modal" id="archiveModal" hidden>
+    <div class="modal__backdrop" id="archiveModalBackdrop"></div>
+    <div class="modal__dialog modal__dialog--wide" role="dialog" aria-labelledby="archiveTitle" aria-modal="true">
+        <h3 id="archiveTitle" class="modal__title">Архив записей</h3>
+        <p class="modal__description">Сюда автоматически попадают записи, которые вы уже просмотрели и проанализировали. Чтобы вернуть запись в основной список, нажмите «Восстановить».</p>
+        <div id="archiveList" class="archive-list"></div>
+        <div id="archiveEmpty" class="archive-list__empty" style="display: none;">Архив пуст.</div>
+        <div class="modal__actions">
+            <button class="btn btn--ghost btn--sm" id="archiveSelectAllBtn" type="button">
+                <span id="archiveSelectAllBtnIcon"></span>
+                <span>Выбрать все</span>
+            </button>
+            <button class="btn btn--danger btn--sm" id="archiveDeleteSelectedBtn" type="button" style="display: none;">
+                <span id="archiveDeleteSelectedBtnIcon"></span>
+                <span>Удалить выбранные</span>
+            </button>
+            <button class="btn btn--ghost btn--sm" id="archiveModalClose" type="button">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard stats -->
+<div class="dashboard" id="dashboard">
+    <div class="stat-card" role="button" tabindex="0" aria-pressed="false" data-filter="pathology" aria-label="Показать только записи с патологией">
+        <div class="stat-card__icon stat-card__icon--pathology" id="statIconPathology"></div>
+        <div class="stat-card__label">Патология</div>
+        <div class="stat-card__value" id="statPathology">0</div>
+        <div class="stat-card__hint">записей с высоким риском</div>
+    </div>
+    <div class="stat-card" role="button" tabindex="0" aria-pressed="false" data-filter="sr" aria-label="Показать только записи с классом Синусовый ритм (SR)">
+        <div class="stat-card__icon stat-card__icon--sr" id="statIconSr"></div>
+        <div class="stat-card__label">Синусовый ритм</div>
+        <div class="stat-card__value" id="statSr">0</div>
+        <div class="stat-card__hint">класс модели SR</div>
+    </div>
+    <div class="stat-card" role="button" tabindex="0" aria-pressed="false" data-filter="normal" aria-label="Показать только нормальные записи">
+        <div class="stat-card__icon stat-card__icon--normal" id="statIconNormal"></div>
+        <div class="stat-card__label">Норма</div>
+        <div class="stat-card__value" id="statNormal">0</div>
+        <div class="stat-card__hint">без отклонений</div>
+    </div>
+    <div class="stat-card" role="button" tabindex="0" aria-pressed="false" data-filter="queue" aria-label="Показать только записи в очереди на анализ">
+        <div class="stat-card__icon stat-card__icon--queue" id="statIconQueue"></div>
+        <div class="stat-card__label">В очереди</div>
+        <div class="stat-card__value" id="statQueue">0</div>
+        <div class="stat-card__hint">ожидают анализа</div>
+    </div>
+</div>
+
+<!-- Upload Zone -->
+<div class="upload-zone" id="uploadZone" tabindex="0" role="button" aria-label="Загрузить XML-файлы">
+    <div class="upload-zone__icon" id="uploadIcon"></div>
+    <div class="upload-zone__main">Перетащите XML-файлы сюда</div>
+    <div class="upload-zone__sub">или нажмите для выбора в проводнике</div>
+    <div class="upload-zone__formats">
+        Поддерживается: <span class="upload-zone__chip">.xml</span> · Poly-Spectrum.NET
+    </div>
+    <input type="file" id="fileInput" accept=".xml" multiple hidden>
+</div>
+
+<!-- Threshold Setting -->
+<div class="threshold-card" id="thresholdSetting">
+    <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Пороговая постобработка DenseNet
+    </h3>
+    <div class="threshold-row">
+        <input type="range" id="globalThreshold" min="0.05" max="0.95" step="0.05" value="0.35" aria-label="Порог постобработки">
+        <span class="threshold-value" id="globalThresholdValue">0.35</span>
+    </div>
+    <div class="threshold-help">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Если первичный класс NORM или SR, но вероятность PATHOLOG не ниже выбранного порога, итоговый класс заменяется на PATHOLOG. Значение сохраняется в браузере и применяется ко всем последующим анализам.</span>
+    </div>
+</div>
+
+<!-- Upload Progress -->
+<div class="section" id="uploadProgress" style="display: none;">
+    <div class="row row--between" style="margin-bottom: var(--space-3);">
+        <strong id="progressText">Загрузка...</strong>
+        <span class="muted" id="progressCount"></span>
+    </div>
+    <div class="progress progress--indeterminate" id="progressBar">
+        <div class="progress__fill"></div>
+    </div>
+    <div class="row" style="margin-top: var(--space-3);">
+        <button class="btn btn--ghost btn--sm" id="cancelUploadBtn" onclick="cancelUpload()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Отменить загрузку
+        </button>
+    </div>
+</div>
+
+<!-- File List -->
+<div id="fileListSection" style="display: none;">
+    <div class="filter-banner" id="classFilterBanner" style="display: none;" role="status">
+        <span class="filter-banner__icon" id="classFilterBannerIcon"></span>
+        <span class="filter-banner__text">Показаны только: <strong id="classFilterBannerLabel"></strong></span>
+        <button class="filter-banner__reset" id="classFilterResetBtn" type="button" aria-label="Сбросить фильтр">
+            <span id="classFilterResetBtnIcon"></span>
+            <span>Сбросить</span>
+        </button>
+    </div>
+    <div class="file-list-toolbar">
+        <label class="file-list-toolbar__select-all">
+            <input type="checkbox" id="selectAll">
+            <span>Выбрать все</span>
+        </label>
+        <span class="file-list-toolbar__btn-wrap file-list-toolbar__btn-wrap--hidden" id="deleteSelectedWrap">
+            <button class="btn btn--ghost btn--sm" id="deleteSelectedBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Удалить выбранные
+            </button>
+        </span>
+        <button class="btn btn--ghost btn--sm" id="deleteAllBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Удалить все
+        </button>
+        <div class="file-list-toolbar__spacer"></div>
+        <button class="btn btn--ghost btn--sm" id="archiveBtn" title="Просмотренные и проанализированные записи">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+            Архив <span class="archive-btn__count">0</span>
+        </button>
+        <select id="viewFilter" class="toolbar-select" title="Фильтр">
+            <option value="all">Все</option>
+            <option value="viewed">Просмотрено</option>
+            <option value="unviewed" selected>Не просмотрено</option>
+        </select>
+        <button class="btn btn--secondary btn--sm" id="sortByProbBtn" title="Сменить сортировку">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M17 16l3 3 3-3"/><path d="M20 19V8"/></svg>
+            <span id="sortLabel">По группам</span>
+        </button>
+        <button class="btn btn--primary btn--sm" id="analyzeAllBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+            Анализировать все
+        </button>
+        <button class="btn btn--warning btn--sm" id="exportStatsBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Экспорт статистики
+        </button>
+    </div>
+    <div class="file-list" id="fileList"></div>
+    <div class="pagination" id="pagination" style="display: none; justify-content: center; gap: var(--space-2); margin-top: var(--space-4);"></div>
+    <div class="filtered-empty" id="filteredEmpty" style="display: none;">
+        <div class="filtered-empty__icon" id="filteredEmptyIcon"></div>
+        <div class="filtered-empty__title">Нет записей в этой категории</div>
+        <div class="filtered-empty__description" id="filteredEmptyDescription"></div>
+        <button class="btn btn--secondary btn--sm" id="filteredEmptyResetBtn" type="button">
+            <span id="filteredEmptyResetIcon"></span>
+            <span>Показать все</span>
+        </button>
+    </div>
+</div>
+
+<!-- Empty state (shown when no files) -->
+<div class="empty-state" id="emptyState" style="display: none;">
+    <div class="empty-state__icon" id="emptyIcon"></div>
+    <div class="empty-state__title">Нет загруженных файлов</div>
+    <div class="empty-state__description">Перетащите XML-файлы в зону выше или нажмите на неё, чтобы выбрать записи в формате Poly-Spectrum.NET для анализа.</div>
+    <button class="btn btn--primary" id="emptyStateBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Загрузить первый файл
+    </button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/upload.js', v='20260602z') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initUpload();
+        loadFileList();
+    });
+</script>
+{% endblock %}
